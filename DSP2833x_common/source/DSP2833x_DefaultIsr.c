@@ -1410,7 +1410,7 @@ DINTCH6_ISR(void)     // DMA
 //
 // I2CINT1A_ISR - INT8.1
 //
-interrupt void 
+interrupt void
 I2CINT1A_ISR(void)     // I2C-A
 {
     //

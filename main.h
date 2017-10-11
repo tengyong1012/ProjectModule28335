@@ -11,6 +11,8 @@
 
 #include "scia.h"     // DSP2833x Headerfile Include File
 #include "gpio.h"
+#include "i2c.h"
+#include "e2prom.h"
 
 #define CPU_FRQ_150MHZ 1
 

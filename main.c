@@ -52,6 +52,7 @@ int main(void)
 	// Interrupts that are used in this example are re-mapped to
 	// ISR functions found within this file.
 	   EALLOW;  // This is needed to write to EALLOW protected registers
+	   PieVectTable.I2CINT1A = &i2c_int1a_isr;
 	   PieVectTable.TINT0 = &cpu_timer0_isr;
 	   EDIS;    // This is needed to disable write to EALLOW protected registers
 
@@ -80,6 +81,7 @@ int main(void)
 	// Configure GPIO32 as a GPIO output pin
 	   EALLOW;
 	   gpioinit();
+	   E2promInit();
 	   EDIS;
 
 	// Enable CPU INT1 which is connected to CPU-Timer 0:
@@ -87,7 +89,9 @@ int main(void)
 
 	// Enable TINT0 in the PIE: Group 1 interrupt 7
 	   PieCtrlRegs.PIEIER1.bit.INTx7 = 1;
-
+	   //PieVectTable.I2CINT1A = &i2c_int1a_isr;
+	   PieCtrlRegs.PIEIER8.bit.INTx1 = 1;
+	   IER |= M_INT8;
 	// Enable global Interrupts and higher priority real-time debug events:
 	   EINT;   // Enable Global interrupt INTM
 	   ERTM;   // Enable Global realtime interrupt DBGM
@@ -96,7 +100,7 @@ int main(void)
 
     while(1)
     {
-
+    	test();
     }
 }
 
@@ -105,7 +109,7 @@ interrupt void cpu_timer0_isr(void)
 {
    CpuTimer0.InterruptCount++;
  //  GpioDataRegs.GPBTOGGLE.all = 0x40000004; // Toggle GPIO32 once per 500 milliseconds
-   GpioDataRegs.GPBTOGGLE.bit.GPIO53= 1;
+   //GpioDataRegs.GPBTOGGLE.bit.GPIO53= 1;
    GpioDataRegs.GPBTOGGLE.bit.GPIO62= 1;
    GpioDataRegs.GPATOGGLE.bit.GPIO0 = 1;
    // Acknowledge this interrupt to receive more interrupts from group 1
