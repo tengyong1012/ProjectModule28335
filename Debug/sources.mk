@@ -103,6 +103,8 @@ S64_DEPS__QUOTED :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 . \
+Dev/Scia \
+Dev/Gpio \
 DSP2833x_headers/source \
 DSP2833x_headers/cmd \
 DSP2833x_common/source \

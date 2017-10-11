@@ -1,10 +1,10 @@
 ******************************************************************************
              TMS320C2000 Linker PC v6.2.7                      
 ******************************************************************************
->> Linked Wed Oct 11 14:11:32 2017
+>> Linked Wed Oct 11 16:21:32 2017
 
 OUTPUT FILE NAME:   <28335Module.out>
-ENTRY POINT SYMBOL: "_c_int00"  address: 00009316
+ENTRY POINT SYMBOL: "_c_int00"  address: 00009481
 
 
 MEMORY CONFIGURATION
@@ -15,7 +15,7 @@ PAGE 0:
   BEGIN                 00000000   00000002  00000002  00000000  RWIX
   RAMM0                 00000050   000003b0  00000000  000003b0  RWIX
   RAML0                 00008000   00001000  0000001a  00000fe6  RWIX
-  RAML1                 00009000   00001000  000003a1  00000c5f  RWIX
+  RAML1                 00009000   00001000  000005c9  00000a37  RWIX
   RAML2                 0000a000   00001000  00000000  00001000  RWIX
   RAML3                 0000b000   00001000  00000000  00001000  RWIX
   ZONE7A                00200000   0000fc00  00000000  0000fc00  RWIX
@@ -107,14 +107,21 @@ codestart
 ramfuncs   0    00008016    00000004     
                   00008016    00000004     DSP2833x_usDelay.obj (ramfuncs)
 
-.text      0    00009000    000003a1     
+.text      0    00009000    000005c9     
                   00009000    00000316     DSP2833x_DefaultIsr.obj (.text:retain)
-                  00009316    00000046     rts2800_fpu32.lib : boot.obj (.text)
-                  0000935c    00000019                       : args_main.obj (.text)
-                  00009375    00000019                       : exit.obj (.text)
-                  0000938e    00000009                       : _lock.obj (.text)
-                  00009397    00000008     DSP2833x_CodeStartBranch.obj (.text)
-                  0000939f    00000002     main.obj (.text)
+                  00009316    000000f7     DSP2833x_SysCtrl.obj (.text)
+                  0000940d    00000074     DSP2833x_CpuTimers.obj (.text)
+                  00009481    00000046     rts2800_fpu32.lib : boot.obj (.text)
+                  000094c7    0000002f     main.obj (.text)
+                  000094f6    00000028     DSP2833x_PieCtrl.obj (.text)
+                  0000951e    00000020     DSP2833x_PieVect.obj (.text)
+                  0000953e    0000001e     main.obj (.text:retain)
+                  0000955c    00000019     rts2800_fpu32.lib : args_main.obj (.text)
+                  00009575    00000019                       : exit.obj (.text)
+                  0000958e    00000017     DSP2833x_Gpio.obj (.text)
+                  000095a5    00000013     gpio.obj (.text)
+                  000095b8    00000009     rts2800_fpu32.lib : _lock.obj (.text)
+                  000095c1    00000008     DSP2833x_CodeStartBranch.obj (.text)
 
 csm_rsvd   0    0033ff80    00000000     DSECT
 
@@ -451,11 +458,12 @@ GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name
 address    name
 --------   ----
 00009000   .text
-00009375   C$$EXIT
+00009575   C$$EXIT
 000090e6   _ADCINT_ISR
 00380080   _ADC_cal
 00000b00   _AdcMirror
 00007100   _AdcRegs
+00009446   _ConfigCpuTimer
 0000c010   _CpuTimer0
 00000c00   _CpuTimer0Regs
 0000c000   _CpuTimer1
@@ -464,6 +472,7 @@ address    name
 00000c10   _CpuTimer2Regs
 0033fff8   _CsmPwl
 00000ae0   _CsmRegs
+000093dc   _CsmUnlock
 00009014   _DATALOG_ISR
 00009208   _DINTCH1_ISR
 00009212   _DINTCH2_ISR
@@ -473,6 +482,7 @@ address    name
 0000923a   _DINTCH6_ISR
 00008016   _DSP28x_usDelay
 00000880   _DevEmuRegs
+00009329   _DisableDog
 00001000   _DmaRegs
 00009294   _ECAN0INTA_ISR
 000092a8   _ECAN0INTB_ISR
@@ -523,6 +533,7 @@ address    name
 000091c2   _EQEP2_INT_ISR
 00006b00   _EQep1Regs
 00006b40   _EQep2Regs
+00009515   _EnableInterrupts
 00000a80   _FlashRegs
 00006f80   _GpioCtrlRegs
 00006fc0   _GpioDataRegs
@@ -533,6 +544,13 @@ address    name
 0000903c   _ILLEGAL_ISR
 00009000   _INT13_ISR
 0000900a   _INT14_ISR
+0000940d   _InitCpuTimers
+0000958e   _InitGpio
+00009381   _InitPeripheralClocks
+000094f6   _InitPieCtrl
+0000951e   _InitPieVectTable
+00009331   _InitPll
+00009316   _InitSysCtrl
 000092f8   _LUF_ISR
 000092ee   _LVF_ISR
 000091f4   _MRINTA_ISR
@@ -561,6 +579,7 @@ address    name
 00007050   _SciaRegs
 00007750   _ScibRegs
 00007770   _ScicRegs
+0000931f   _ServiceDog
 00007040   _SpiaRegs
 00007010   _SysCtrlRegs
 000090f0   _TINT0_ISR
@@ -594,25 +613,27 @@ address    name
 ffffffff   ___binit__
 ffffffff   ___c_args__
 00008000   ___cinit__
-000093a1   ___etext__
+000095c9   ___etext__
 ffffffff   ___pinit__
 00009000   ___text__
-0000935c   __args_main
+0000955c   __args_main
 0000c01a   __lock
-00009396   __nop
-00009392   __register_lock
-0000938e   __register_unlock
+000095c0   __nop
+000095bc   __register_lock
+000095b8   __register_unlock
 00000400   __stack
 0000c018   __unlock
-00009375   _abort
-00009316   _c_int00
-00009377   _exit
-0000939f   _main
+00009575   _abort
+00009481   _c_int00
+0000953e   _cpu_timer0_isr
+00009577   _exit
+000095a5   _gpioinit
+000094c7   _main
 0000930c   _rsvd_ISR
 ffffffff   binit
 00008000   cinit
 00000000   code_start
-000093a1   etext
+000095c9   etext
 ffffffff   pinit
 
 
@@ -757,17 +778,31 @@ address    name
 000092f8   _LUF_ISR
 00009302   _PIE_RESERVED
 0000930c   _rsvd_ISR
-00009316   _c_int00
-0000935c   __args_main
-00009375   C$$EXIT
-00009375   _abort
-00009377   _exit
-0000938e   __register_unlock
-00009392   __register_lock
-00009396   __nop
-0000939f   _main
-000093a1   ___etext__
-000093a1   etext
+00009316   _InitSysCtrl
+0000931f   _ServiceDog
+00009329   _DisableDog
+00009331   _InitPll
+00009381   _InitPeripheralClocks
+000093dc   _CsmUnlock
+0000940d   _InitCpuTimers
+00009446   _ConfigCpuTimer
+00009481   _c_int00
+000094c7   _main
+000094f6   _InitPieCtrl
+00009515   _EnableInterrupts
+0000951e   _InitPieVectTable
+0000953e   _cpu_timer0_isr
+0000955c   __args_main
+00009575   C$$EXIT
+00009575   _abort
+00009577   _exit
+0000958e   _InitGpio
+000095a5   _gpioinit
+000095b8   __register_unlock
+000095bc   __register_lock
+000095c0   __nop
+000095c9   ___etext__
+000095c9   etext
 0000c000   _CpuTimer1
 0000c008   _CpuTimer2
 0000c010   _CpuTimer0
@@ -785,4 +820,4 @@ ffffffff   ___pinit__
 ffffffff   binit
 ffffffff   pinit
 
-[164 symbols]
+[178 symbols]

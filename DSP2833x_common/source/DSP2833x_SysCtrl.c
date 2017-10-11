@@ -26,6 +26,7 @@
 //
 #pragma CODE_SECTION(InitFlash, "ramfuncs");
 
+
 //
 // InitSysCtrl - This function initializes the System Control registers to a 
 // known state.
