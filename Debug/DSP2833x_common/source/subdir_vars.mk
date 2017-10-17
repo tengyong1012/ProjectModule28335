@@ -22,7 +22,8 @@ C_SRCS += \
 ../DSP2833x_common/source/DSP2833x_PieVect.c \
 ../DSP2833x_common/source/DSP2833x_Sci.c \
 ../DSP2833x_common/source/DSP2833x_Spi.c \
-../DSP2833x_common/source/DSP2833x_SysCtrl.c 
+../DSP2833x_common/source/DSP2833x_SysCtrl.c \
+../DSP2833x_common/source/DSP2833x_Xintf.c 
 
 OBJS += \
 ./DSP2833x_common/source/DSP2833x_ADC_cal.obj \
@@ -41,6 +42,7 @@ OBJS += \
 ./DSP2833x_common/source/DSP2833x_Sci.obj \
 ./DSP2833x_common/source/DSP2833x_Spi.obj \
 ./DSP2833x_common/source/DSP2833x_SysCtrl.obj \
+./DSP2833x_common/source/DSP2833x_Xintf.obj \
 ./DSP2833x_common/source/DSP2833x_usDelay.obj 
 
 ASM_DEPS += \
@@ -62,7 +64,8 @@ C_DEPS += \
 ./DSP2833x_common/source/DSP2833x_PieVect.pp \
 ./DSP2833x_common/source/DSP2833x_Sci.pp \
 ./DSP2833x_common/source/DSP2833x_Spi.pp \
-./DSP2833x_common/source/DSP2833x_SysCtrl.pp 
+./DSP2833x_common/source/DSP2833x_SysCtrl.pp \
+./DSP2833x_common/source/DSP2833x_Xintf.pp 
 
 C_DEPS__QUOTED += \
 "DSP2833x_common\source\DSP2833x_Adc.pp" \
@@ -78,7 +81,8 @@ C_DEPS__QUOTED += \
 "DSP2833x_common\source\DSP2833x_PieVect.pp" \
 "DSP2833x_common\source\DSP2833x_Sci.pp" \
 "DSP2833x_common\source\DSP2833x_Spi.pp" \
-"DSP2833x_common\source\DSP2833x_SysCtrl.pp" 
+"DSP2833x_common\source\DSP2833x_SysCtrl.pp" \
+"DSP2833x_common\source\DSP2833x_Xintf.pp" 
 
 OBJS__QUOTED += \
 "DSP2833x_common\source\DSP2833x_ADC_cal.obj" \
@@ -97,6 +101,7 @@ OBJS__QUOTED += \
 "DSP2833x_common\source\DSP2833x_Sci.obj" \
 "DSP2833x_common\source\DSP2833x_Spi.obj" \
 "DSP2833x_common\source\DSP2833x_SysCtrl.obj" \
+"DSP2833x_common\source\DSP2833x_Xintf.obj" \
 "DSP2833x_common\source\DSP2833x_usDelay.obj" 
 
 ASM_DEPS__QUOTED += \
@@ -123,6 +128,7 @@ C_SRCS__QUOTED += \
 "../DSP2833x_common/source/DSP2833x_PieVect.c" \
 "../DSP2833x_common/source/DSP2833x_Sci.c" \
 "../DSP2833x_common/source/DSP2833x_Spi.c" \
-"../DSP2833x_common/source/DSP2833x_SysCtrl.c" 
+"../DSP2833x_common/source/DSP2833x_SysCtrl.c" \
+"../DSP2833x_common/source/DSP2833x_Xintf.c" 
 
 

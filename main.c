@@ -14,6 +14,40 @@
 //
 #include "main.h"
 
+#pragma CODE_SECTION(commonfunc1,"xintffuncs");
+#pragma CODE_SECTION(commonfunc2,"xintffuncs");
+#pragma CODE_SECTION(commonfunc3,"xintffuncs");
+
+void commonfunc1(void)
+{
+    int i = 0, sum = 0;
+
+    for (i = 0; i < 100; i++)
+    {
+    	sum += i;
+    }
+}
+
+void commonfunc2(void)
+{
+    int i = 0, sum = 0;
+
+    for (i = 0; i < 100; i++)
+    {
+    	sum += i;
+    }
+}
+
+void commonfunc3(void)
+{
+    int i = 0, sum = 0;
+
+    for (i = 0; i < 100; i++)
+    {
+    	sum += i;
+    }
+}
+
 int main(void)
 {
 	// Step 1. Initialize System Control:
@@ -84,6 +118,13 @@ int main(void)
 	   E2promInit();
 	   EDIS;
 
+       InitSram();
+       //InitExRam(0);
+       //ReadToBuffer(10, 10, ArrayA);
+       //WriteConstantToSram(10, 10, 0xc33c);
+       //ClearExRam(0);
+       memcpy(&XintffuncsRunStart, &XintffuncsLoadStart, (Uint32)&XintffuncsLoadSize);
+
 	// Enable CPU INT1 which is connected to CPU-Timer 0:
 	   IER |= M_INT1;
 
@@ -100,7 +141,10 @@ int main(void)
 
     while(1)
     {
-    	test();
+    	//test();
+    	commonfunc1();
+    	commonfunc2();
+    	commonfunc3();
     }
 }
 

@@ -6,6 +6,10 @@
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.Texas Instruments XDS100v3 USB Emulator_0/C28xx" value="28335Module"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${target_config_active_default:28335Module}"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Texas Instruments XDS100v3 USB Emulator_0/C28xx" value="D:/git28335\ProjectModule28335\Debug\28335Module.out"/>
+<mapAttribute key="com.ti.ccstudio.debug.ui.displayFormats">
+<mapEntry key="Texas Instruments XDS100v3 USB Emulator_0/C28xx@##separator##@0" value="16-Bit Signed Int"/>
+<mapEntry key="Texas Instruments XDS100v3 USB Emulator_0/C28xx@##separator##@1" value="16-Bit Hex - TI Style"/>
+</mapAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/28335Module"/>
 </listAttribute>

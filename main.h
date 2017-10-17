@@ -13,6 +13,7 @@
 #include "gpio.h"
 #include "i2c.h"
 #include "e2prom.h"
+#include "sram.h"
 
 #define CPU_FRQ_150MHZ 1
 
