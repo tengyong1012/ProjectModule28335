@@ -4,14 +4,6 @@
  * 修改历史：
  * 功能：
  ***************************************************************************/
-
-
-
-
-
-//
-// Included Files
-//
 #include "main.h"
 
 #pragma CODE_SECTION(commonfunc1,"xintffuncs");
@@ -88,15 +80,18 @@ int main(void)
 	   EALLOW;  // This is needed to write to EALLOW protected registers
 	   PieVectTable.I2CINT1A = &i2c_int1a_isr;
 	   PieVectTable.TINT0 = &cpu_timer0_isr;
+	   PieVectTable.SCITXINTC = &scicfifotx_isr;
+	   PieVectTable.SCIRXINTC = &scicfiforx_isr;
+
 	   EDIS;    // This is needed to disable write to EALLOW protected registers
 
 	// Step 4. Initialize the Device Peripheral. This function can be
 	//         found in DSP2833x_CpuTimers.c
 	   InitCpuTimers();   // For this example, only initialize the Cpu Timers
 	#if (CPU_FRQ_150MHZ)
-	// Configure CPU-Timer 0 to interrupt every 500 milliseconds:
+	// Configure CPU-Timer 0 to interrupt every 100 milliseconds:
 	// 150MHz CPU Freq, 50 millisecond Period (in uSeconds)
-	   ConfigCpuTimer(&CpuTimer0, 150, 500000);
+	   ConfigCpuTimer(&CpuTimer0, 150, 100000);
 	#endif
 	#if (CPU_FRQ_100MHZ)
 	// Configure CPU-Timer 0 to interrupt every 500 milliseconds:
@@ -116,8 +111,10 @@ int main(void)
 	   EALLOW;
 	   gpioinit();
 	   E2promInit();
+	   //scicinit();
+	   scicfifoinit();
 	   EDIS;
-
+	   RealTimerInit();
        InitSram();
        //InitExRam(0);
        //ReadToBuffer(10, 10, ArrayA);
@@ -132,6 +129,8 @@ int main(void)
 	   PieCtrlRegs.PIEIER1.bit.INTx7 = 1;
 	   //PieVectTable.I2CINT1A = &i2c_int1a_isr;
 	   PieCtrlRegs.PIEIER8.bit.INTx1 = 1;
+	   PieCtrlRegs.PIEIER8.bit.INTx5 = 1;
+	   PieCtrlRegs.PIEIER8.bit.INTx6 = 1;
 	   IER |= M_INT8;
 	// Enable global Interrupts and higher priority real-time debug events:
 	   EINT;   // Enable Global interrupt INTM
@@ -152,10 +151,13 @@ int main(void)
 interrupt void cpu_timer0_isr(void)
 {
    CpuTimer0.InterruptCount++;
- //  GpioDataRegs.GPBTOGGLE.all = 0x40000004; // Toggle GPIO32 once per 500 milliseconds
+   //GpioDataRegs.GPBTOGGLE.all = 0x40000004; // Toggle GPIO32 once per 500 milliseconds
    //GpioDataRegs.GPBTOGGLE.bit.GPIO53= 1;
-   GpioDataRegs.GPBTOGGLE.bit.GPIO62= 1;
-   GpioDataRegs.GPATOGGLE.bit.GPIO0 = 1;
-   // Acknowledge this interrupt to receive more interrupts from group 1
+   //GpioDataRegs.GPBTOGGLE.bit.GPIO62= 1;
+   //GpioDataRegs.GPATOGGLE.bit.GPIO0 = 1;
+   //Acknowledge this interrupt to receive more interrupts from group 1
+   RefreshRealTimer(CpuTimer0.InterruptCount);
+   CpuTimer0.InterruptCount = 0;
+
    PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;
 }

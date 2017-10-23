@@ -14,6 +14,7 @@
 #include "i2c.h"
 #include "e2prom.h"
 #include "sram.h"
+#include "Runtime.h"
 
 #define CPU_FRQ_150MHZ 1
 

@@ -103,6 +103,7 @@ S64_DEPS__QUOTED :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 . \
+Usr \
 Dev/Sram \
 Dev/Scia \
 Dev/I2c \

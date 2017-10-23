@@ -23,8 +23,17 @@ extern "C"
 #include "DSP2833x_Device.h"
 
 
+extern Uint16 ScicBuf[256];
+extern Uint16 ScicRxIndex;
+extern Uint16 ScicTxIndex;
 
+extern void scicinit(void);
+interrupt void scictx_isr(void);
+interrupt void scicrx_isr(void);
 
+extern void scicfifoinit(void);
+interrupt void scicfifotx_isr(void);
+interrupt void scicfiforx_isr(void);
 
 #ifdef __cplusplus
 }

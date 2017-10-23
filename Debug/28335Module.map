@@ -1,10 +1,10 @@
 ******************************************************************************
              TMS320C2000 Linker PC v6.2.7                      
 ******************************************************************************
->> Linked Mon Oct 16 21:49:40 2017
+>> Linked Mon Oct 23 16:59:19 2017
 
 OUTPUT FILE NAME:   <28335Module.out>
-ENTRY POINT SYMBOL: "_c_int00"  address: 00009807
+ENTRY POINT SYMBOL: "_c_int00"  address: 00009914
 
 
 MEMORY CONFIGURATION
@@ -15,7 +15,7 @@ PAGE 0:
   BEGIN                 00000000   00000002  00000002  00000000  RWIX
   RAMM0                 00000050   000003b0  00000000  000003b0  RWIX
   RAML0                 00008000   00001000  0000003d  00000fc3  RWIX
-  RAML1                 00009000   00001000  00000969  00000697  RWIX
+  RAML1                 00009000   00001000  00000ad0  00000530  RWIX
   RAML2                 0000a000   00001000  00000000  00001000  RWIX
   RAML3                 0000b000   00001000  00000000  00001000  RWIX
   ZONE6                 00180000   00001000  0000002a  00000fd6  RWIX
@@ -79,7 +79,7 @@ PAGE 1:
   SCIB                  00007750   00000010  00000010  00000000  RWIX
   SCIC                  00007770   00000010  00000010  00000000  RWIX
   I2CA                  00007900   00000040  00000022  0000001e  RWIX
-  RAML4                 0000c000   00001000  0000006e  00000f92  RWIX
+  RAML4                 0000c000   00001000  000002ae  00000d52  RWIX
   RAML5                 0000d000   00001000  00000100  00000f00  RWIX
   RAML6                 0000e000   00001000  00000000  00001000  RWIX
   RAML7                 0000f000   00001000  00000000  00001000  RWIX
@@ -109,31 +109,35 @@ codestart
 ramfuncs   0    00008039    00000004     
                   00008039    00000004     DSP2833x_usDelay.obj (ramfuncs)
 
-.text      0    00009000    0000093f     
+.text      0    00009000    00000aa6     
                   00009000    00000316     DSP2833x_DefaultIsr.obj (.text:retain)
                   00009316    000000f7     DSP2833x_SysCtrl.obj (.text)
                   0000940d    000000f6     DSP2833x_Xintf.obj (.text)
                   00009503    000000b4     sram.obj (.text)
                   000095b7    00000099     i2c.obj (.text:retain)
                   00009650    00000092     i2c.obj (.text)
-                  000096e2    00000074     DSP2833x_CpuTimers.obj (.text)
-                  00009756    0000005f     e2prom.obj (.text)
-                  000097b5    00000052     main.obj (.text)
-                  00009807    00000046     rts2800_fpu32.lib : boot.obj (.text)
-                  0000984d    00000028     DSP2833x_PieCtrl.obj (.text)
-                  00009875    00000021     rts2800_fpu32.lib : memcpy_ff.obj (.text)
-                  00009896    00000020     DSP2833x_PieVect.obj (.text)
-                  000098b6    0000001c     main.obj (.text:retain)
-                  000098d2    00000019     rts2800_fpu32.lib : args_main.obj (.text)
-                  000098eb    00000019                       : exit.obj (.text)
-                  00009904    00000017     DSP2833x_Gpio.obj (.text)
-                  0000991b    00000013     gpio.obj (.text)
-                  0000992e    00000009     rts2800_fpu32.lib : _lock.obj (.text)
-                  00009937    00000008     DSP2833x_CodeStartBranch.obj (.text)
+                  000096e2    0000007f     scia.obj (.text)
+                  00009761    0000007e     scia.obj (.text:retain)
+                  000097df    00000074     DSP2833x_CpuTimers.obj (.text)
+                  00009853    00000062     main.obj (.text)
+                  000098b5    0000005f     e2prom.obj (.text)
+                  00009914    00000046     rts2800_fpu32.lib : boot.obj (.text)
+                  0000995a    0000003a     main.obj (.text:retain)
+                  00009994    00000031     Runtime.obj (.text)
+                  000099c5    00000028     DSP2833x_PieCtrl.obj (.text)
+                  000099ed    00000021     rts2800_fpu32.lib : memcpy_ff.obj (.text)
+                  00009a0e    00000020     DSP2833x_PieVect.obj (.text)
+                  00009a2e    00000019     rts2800_fpu32.lib : args_main.obj (.text)
+                  00009a47    00000019                       : exit.obj (.text)
+                  00009a60    00000017     DSP2833x_Gpio.obj (.text)
+                  00009a77    00000013     gpio.obj (.text)
+                  00009a8a    0000000b     rts2800_fpu32.lib : u_div.obj (.text)
+                  00009a95    00000009                       : _lock.obj (.text)
+                  00009a9e    00000008     DSP2833x_CodeStartBranch.obj (.text)
 
 xintffuncs 
-*          0    0000993f    0000002a     RUN ADDR = 00180000
-                  0000993f    0000002a     main.obj (xintffuncs)
+*          0    00009aa6    0000002a     RUN ADDR = 00180000
+                  00009aa6    0000002a     main.obj (xintffuncs)
 
 csm_rsvd   0    0033ff80    00000000     DSECT
 
@@ -341,13 +345,16 @@ I2caRegsFile
 *          1    00007900    00000022     UNINITIALIZED
                   00007900    00000022     DSP2833x_GlobalVariableDefs.obj (I2caRegsFile)
 
-.ebss      1    0000c000    0000006e     UNINITIALIZED
-                  0000c000    0000002e     e2prom.obj (.ebss)
-                  0000c02e    00000004     rts2800_fpu32.lib : _lock.obj (.ebss)
-                  0000c032    00000004                       : exit.obj (.ebss)
-                  0000c036    0000000a     --HOLE--
-                  0000c040    00000018     DSP2833x_CpuTimers.obj (.ebss)
-                  0000c058    00000016     sram.obj (.ebss)
+.ebss      1    0000c000    000002ae     UNINITIALIZED
+                  0000c000    00000240     scia.obj (.ebss)
+                  0000c240    0000002e     e2prom.obj (.ebss)
+                  0000c26e    00000005     Runtime.obj (.ebss)
+                  0000c273    00000001     --HOLE--
+                  0000c274    00000004     rts2800_fpu32.lib : _lock.obj (.ebss)
+                  0000c278    00000004                       : exit.obj (.ebss)
+                  0000c27c    00000004     --HOLE--
+                  0000c280    00000018     DSP2833x_CpuTimers.obj (.ebss)
+                  0000c298    00000016     sram.obj (.ebss)
 
 .econst    1    0000d000    00000100     
                   0000d000    00000100     DSP2833x_PieVect.obj (.econst)
@@ -453,21 +460,29 @@ address     data page           name
 
 00007900     1e4 (00007900)     _I2caRegs
 
-0000c000     300 (0000c000)     _PassCount
-0000c001     300 (0000c000)     _FailCount
-0000c002     300 (0000c000)     _CurrentMsgPtr
-0000c004     300 (0000c000)     _I2cMsgOut1
-0000c019     300 (0000c000)     _I2cMsgIn1
-0000c02e     300 (0000c000)     __unlock
-0000c030     300 (0000c000)     __lock
-0000c032     300 (0000c000)     ___TI_cleanup_ptr
-0000c034     300 (0000c000)     ___TI_dtors_ptr
+0000c000     300 (0000c000)     _ScicRxIndex
+0000c001     300 (0000c000)     _ScicTxIndex
 
-0000c040     301 (0000c040)     _CpuTimer1
-0000c048     301 (0000c040)     _CpuTimer2
-0000c050     301 (0000c040)     _CpuTimer0
-0000c058     301 (0000c040)     _ExRamStart
-0000c05a     301 (0000c040)     _ArrayA
+0000c040     301 (0000c040)     _ScicTxBuf
+
+0000c140     305 (0000c140)     _ScicRxBuf
+
+0000c240     309 (0000c240)     _PassCount
+0000c241     309 (0000c240)     _FailCount
+0000c242     309 (0000c240)     _CurrentMsgPtr
+0000c244     309 (0000c240)     _I2cMsgOut1
+0000c259     309 (0000c240)     _I2cMsgIn1
+0000c26e     309 (0000c240)     _nowtime
+0000c274     309 (0000c240)     __unlock
+0000c276     309 (0000c240)     __lock
+0000c278     309 (0000c240)     ___TI_cleanup_ptr
+0000c27a     309 (0000c240)     ___TI_dtors_ptr
+
+0000c280     30a (0000c280)     _CpuTimer1
+0000c288     30a (0000c280)     _CpuTimer2
+0000c290     30a (0000c280)     _CpuTimer0
+0000c298     30a (0000c280)     _ExRamStart
+0000c29a     30a (0000c280)     _ArrayA
 
 0000d000     340 (0000d000)     _PieVectTableInit
 
@@ -481,24 +496,26 @@ GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name
 address    name
 --------   ----
 00009000   .text
-000098eb   C$$EXIT
+00009a47   C$$EXIT
+00009a8a   U$$DIV
+00009a8f   U$$MOD
 000090e6   _ADCINT_ISR
 00380080   _ADC_cal
 00000b00   _AdcMirror
 00007100   _AdcRegs
-0000c05a   _ArrayA
+0000c29a   _ArrayA
 00009553   _ClearExRam
-0000971b   _ConfigCpuTimer
-0000c050   _CpuTimer0
+00009818   _ConfigCpuTimer
+0000c290   _CpuTimer0
 00000c00   _CpuTimer0Regs
-0000c040   _CpuTimer1
+0000c280   _CpuTimer1
 00000c08   _CpuTimer1Regs
-0000c048   _CpuTimer2
+0000c288   _CpuTimer2
 00000c10   _CpuTimer2Regs
 0033fff8   _CsmPwl
 00000ae0   _CsmRegs
 000093dc   _CsmUnlock
-0000c002   _CurrentMsgPtr
+0000c242   _CurrentMsgPtr
 00009014   _DATALOG_ISR
 00009208   _DINTCH1_ISR
 00009212   _DINTCH2_ISR
@@ -510,9 +527,9 @@ address    name
 00000880   _DevEmuRegs
 00009329   _DisableDog
 00001000   _DmaRegs
-00009756   _E2promInit
-0000976f   _E2promReadByte
-00009775   _E2promWriteByte
+000098b5   _E2promInit
+000098ce   _E2promReadByte
+000098d4   _E2promWriteByte
 00009294   _ECAN0INTA_ISR
 000092a8   _ECAN0INTB_ISR
 0000929e   _ECAN1INTA_ISR
@@ -562,9 +579,9 @@ address    name
 000091c2   _EQEP2_INT_ISR
 00006b00   _EQep1Regs
 00006b40   _EQep2Regs
-0000986c   _EnableInterrupts
-0000c058   _ExRamStart
-0000c001   _FailCount
+000099e4   _EnableInterrupts
+0000c298   _ExRamStart
+0000c241   _FailCount
 00000a80   _FlashRegs
 00006f80   _GpioCtrlRegs
 00006fc0   _GpioDataRegs
@@ -574,19 +591,19 @@ address    name
 00009679   _I2CA_WriteData
 00009244   _I2CINT1A_ISR
 0000924e   _I2CINT2A_ISR
-0000c019   _I2cMsgIn1
-0000c004   _I2cMsgOut1
+0000c259   _I2cMsgIn1
+0000c244   _I2cMsgOut1
 00007900   _I2caRegs
 0000903c   _ILLEGAL_ISR
 00009000   _INT13_ISR
 0000900a   _INT14_ISR
-000096e2   _InitCpuTimers
+000097df   _InitCpuTimers
 0000953e   _InitExRam
-00009904   _InitGpio
+00009a60   _InitGpio
 00009650   _InitI2c
 00009381   _InitPeripheralClocks
-0000984d   _InitPieCtrl
-00009896   _InitPieVectTable
+000099c5   _InitPieCtrl
+00009a0e   _InitPieVectTable
 00009331   _InitPll
 00009503   _InitSram
 00009316   _InitSysCtrl
@@ -604,12 +621,14 @@ address    name
 00009032   _NMI_ISR
 00009302   _PIE_RESERVED
 00380090   _PartIdRegs
-0000c000   _PassCount
+0000c240   _PassCount
 00000ce0   _PieCtrlRegs
 00000d00   _PieVectTable
 0000d000   _PieVectTableInit
 0000901e   _RTOSINT_ISR
 0000959b   _ReadToBuffer
+00009994   _RealTimerInit
+0000999c   _RefreshRealTimer
 0000926c   _SCIRXINTA_ISR
 00009280   _SCIRXINTB_ISR
 00009258   _SCIRXINTC_ISR
@@ -623,6 +642,10 @@ address    name
 00007050   _SciaRegs
 00007750   _ScibRegs
 00007770   _ScicRegs
+0000c140   _ScicRxBuf
+0000c000   _ScicRxIndex
+0000c040   _ScicTxBuf
+0000c001   _ScicTxIndex
 0000931f   _ServiceDog
 00007040   _SpiaRegs
 00007010   _SysCtrlRegs
@@ -651,47 +674,54 @@ address    name
 000092e4   _XINT7_ISR
 00007070   _XIntruptRegs
 00000b20   _XintfRegs
-00009969   _XintffuncsLoadEnd
+00009ad0   _XintffuncsLoadEnd
 0000002a   _XintffuncsLoadSize
-0000993f   _XintffuncsLoadStart
+00009aa6   _XintffuncsLoadStart
 00180000   _XintffuncsRunStart
 00000700   __STACK_END
 00000300   __STACK_SIZE
 00000001   __TI_args_main
-0000c032   ___TI_cleanup_ptr
-0000c034   ___TI_dtors_ptr
+0000c278   ___TI_cleanup_ptr
+0000c27a   ___TI_dtors_ptr
 ffffffff   ___binit__
 ffffffff   ___c_args__
 00008000   ___cinit__
-0000993f   ___etext__
-00009875   ___memcpy_ff
+00009aa6   ___etext__
+000099ed   ___memcpy_ff
 ffffffff   ___pinit__
 00009000   ___text__
-000098d2   __args_main
-0000c030   __lock
-00009936   __nop
-00009932   __register_lock
-0000992e   __register_unlock
+00009a2e   __args_main
+0000c276   __lock
+00009a9d   __nop
+00009a99   __register_lock
+00009a95   __register_unlock
 00000400   __stack
-0000c02e   __unlock
-000098eb   _abort
-00009807   _c_int00
+0000c274   __unlock
+00009a47   _abort
+00009914   _c_int00
 00180000   _commonfunc1
 0018000e   _commonfunc2
 0018001c   _commonfunc3
-000098b6   _cpu_timer0_isr
-000098ed   _exit
+0000995a   _cpu_timer0_isr
+00009a49   _exit
 000096e0   _fail
-0000991b   _gpioinit
+00009a77   _gpioinit
 000095b7   _i2c_int1a_isr
-000097b5   _main
+00009853   _main
+0000c26e   _nowtime
 000096de   _pass
 0000930c   _rsvd_ISR
-0000977b   _test
+0000970d   _scicfifoinit
+000097a8   _scicfiforx_isr
+00009790   _scicfifotx_isr
+000096e2   _scicinit
+00009776   _scicrx_isr
+00009761   _scictx_isr
+000098da   _test
 ffffffff   binit
 00008000   cinit
 00000000   code_start
-0000993f   etext
+00009aa6   etext
 ffffffff   pinit
 
 
@@ -859,46 +889,61 @@ address    name
 000096ac   _I2CA_ReadData
 000096de   _pass
 000096e0   _fail
-000096e2   _InitCpuTimers
-0000971b   _ConfigCpuTimer
-00009756   _E2promInit
-0000976f   _E2promReadByte
-00009775   _E2promWriteByte
-0000977b   _test
-000097b5   _main
-00009807   _c_int00
-0000984d   _InitPieCtrl
-0000986c   _EnableInterrupts
-00009875   ___memcpy_ff
-00009896   _InitPieVectTable
-000098b6   _cpu_timer0_isr
-000098d2   __args_main
-000098eb   C$$EXIT
-000098eb   _abort
-000098ed   _exit
-00009904   _InitGpio
-0000991b   _gpioinit
-0000992e   __register_unlock
-00009932   __register_lock
-00009936   __nop
-0000993f   _XintffuncsLoadStart
-0000993f   ___etext__
-0000993f   etext
-00009969   _XintffuncsLoadEnd
-0000c000   _PassCount
-0000c001   _FailCount
-0000c002   _CurrentMsgPtr
-0000c004   _I2cMsgOut1
-0000c019   _I2cMsgIn1
-0000c02e   __unlock
-0000c030   __lock
-0000c032   ___TI_cleanup_ptr
-0000c034   ___TI_dtors_ptr
-0000c040   _CpuTimer1
-0000c048   _CpuTimer2
-0000c050   _CpuTimer0
-0000c058   _ExRamStart
-0000c05a   _ArrayA
+000096e2   _scicinit
+0000970d   _scicfifoinit
+00009761   _scictx_isr
+00009776   _scicrx_isr
+00009790   _scicfifotx_isr
+000097a8   _scicfiforx_isr
+000097df   _InitCpuTimers
+00009818   _ConfigCpuTimer
+00009853   _main
+000098b5   _E2promInit
+000098ce   _E2promReadByte
+000098d4   _E2promWriteByte
+000098da   _test
+00009914   _c_int00
+0000995a   _cpu_timer0_isr
+00009994   _RealTimerInit
+0000999c   _RefreshRealTimer
+000099c5   _InitPieCtrl
+000099e4   _EnableInterrupts
+000099ed   ___memcpy_ff
+00009a0e   _InitPieVectTable
+00009a2e   __args_main
+00009a47   C$$EXIT
+00009a47   _abort
+00009a49   _exit
+00009a60   _InitGpio
+00009a77   _gpioinit
+00009a8a   U$$DIV
+00009a8f   U$$MOD
+00009a95   __register_unlock
+00009a99   __register_lock
+00009a9d   __nop
+00009aa6   _XintffuncsLoadStart
+00009aa6   ___etext__
+00009aa6   etext
+00009ad0   _XintffuncsLoadEnd
+0000c000   _ScicRxIndex
+0000c001   _ScicTxIndex
+0000c040   _ScicTxBuf
+0000c140   _ScicRxBuf
+0000c240   _PassCount
+0000c241   _FailCount
+0000c242   _CurrentMsgPtr
+0000c244   _I2cMsgOut1
+0000c259   _I2cMsgIn1
+0000c26e   _nowtime
+0000c274   __unlock
+0000c276   __lock
+0000c278   ___TI_cleanup_ptr
+0000c27a   ___TI_dtors_ptr
+0000c280   _CpuTimer1
+0000c288   _CpuTimer2
+0000c290   _CpuTimer0
+0000c298   _ExRamStart
+0000c29a   _ArrayA
 0000d000   _PieVectTableInit
 00180000   _XintffuncsRunStart
 00180000   _commonfunc1
@@ -913,4 +958,4 @@ ffffffff   ___pinit__
 ffffffff   binit
 ffffffff   pinit
 
-[213 symbols]
+[228 symbols]
