@@ -23,9 +23,14 @@ extern "C"
 #include "DSP2833x_Device.h"
 
 
+#define SCICRXMAXBUF 256
+#define SCICTXMAXBUF 256
+
 extern Uint16 ScicBuf[256];
 extern Uint16 ScicRxIndex;
 extern Uint16 ScicTxIndex;
+extern Uint16 ScicRxTail;
+extern Uint16 ScicTxTail;
 
 extern void scicinit(void);
 interrupt void scictx_isr(void);

@@ -9,12 +9,12 @@
 //
 #include "scia.h"     // DSP2833x Headerfile Include File
 
-#define SCICRXMAXBUF 256
-#define SCICTXMAXBUF 256
 
+//CycleBuffer ScicTxBuf;
 Uint16 ScicRxBuf[SCICRXMAXBUF];
 Uint16 ScicTxBuf[SCICTXMAXBUF];
 Uint16 ScicRxIndex, ScicTxIndex;
+Uint16 ScicRxTail, ScicTxTail;
 /***************************************************************************
  * 函数名：
  * 功能：
@@ -58,7 +58,6 @@ void scicinit()
  ***************************************************************************/
 void scicfifoinit()
 {
-	int i = 0;
     EALLOW;
 
     GpioCtrlRegs.GPBPUD.bit.GPIO62 = 0;  // Enable pull-up for GPIO62 (SCIRXDC)
@@ -76,16 +75,17 @@ void scicfifoinit()
 	ScicRegs.SCICTL2.all |= (Uint16)0x03;
 
 
-	ScicRegs.SCIFFTX.all = 0xc03F;
-	ScicRegs.SCIFFRX.all = 0x103F;
+	ScicRegs.SCIFFTX.all = 0xc030;
+	ScicRegs.SCIFFRX.all = 0x1030;
 	ScicRegs.SCIFFCT.all = 0;
 
 	ScicRegs.SCICTL1.all = 0x0023;
+	ScicRegs.SCICTL1.bit.TXENA = 0;
 	ScicRegs.SCIFFTX.bit.TXFIFOXRESET = 1;
 	ScicRegs.SCIFFRX.bit.RXFIFORESET = 1;
     EDIS;
 
-    for(i = 0; i < 16; i++)
+    /*for(i = 0; i < 16; i++)
     {
     	ScicTxBuf[i] = 'A' + i;
     }
@@ -93,9 +93,11 @@ void scicfifoinit()
     for(i = 0; i < 16; i++)
     {
     	ScicRegs.SCITXBUF = ScicTxBuf[i];
-    }
+    }*/
     ScicRxIndex = 0;
     ScicTxIndex = 0;
+    ScicRxTail = 0;
+    ScicTxTail = 0;
 }
 /***************************************************************************
  * 函数名：
@@ -139,10 +141,17 @@ interrupt void scicfifotx_isr(void)     // SCI-C fifo tx interrupt
 {
 	int i = 0;
 
-    /*for(i = 0; i < 16; i++)
+	//temp = ScicTxIndex % 16;
+
+    for(i = 0; i < 16; i++)
     {
-    	ScicRegs.SCITXBUF = ScicTxBuf[i];
-    }*/
+    	ScicRegs.SCITXBUF = ScicTxBuf[ScicTxIndex];
+    	ScicTxIndex--;
+    	if (ScicTxIndex == 0)
+    	{
+    		ScicRegs.SCICTL1.bit.TXENA = 0;
+    	}
+    }
 
 	//ScicRegs.SCIRXST.all = 0x0;
 	ScicRegs.SCIFFTX.bit.TXFFINTCLR = 1;
@@ -164,10 +173,24 @@ interrupt void scicfiforx_isr(void)     // SCI-C fifo rx interrupt
     for(i = 0; i < 16; i++)
     {
     	ScicRxBuf[ScicRxIndex] = ScicRegs.SCIRXBUF.all;
+    	//test fifo tx
+    	ScicTxBuf[ScicTxIndex] = ScicRxBuf[ScicRxIndex];
+    	ScicTxIndex++;
+    	if (ScicTxIndex >= SCICTXMAXBUF)
+    	{
+    		ScicTxIndex %= SCICTXMAXBUF;
+    	}
+    	if (ScicTxIndex >= 16)
+    	{
+    		ScicRegs.SCICTL1.bit.TXENA = 1;
+    	}
+    	////////////////////////////////////////////////////////////
     	ScicRxIndex++;
 
     	if (ScicRxIndex >= SCICRXMAXBUF)
+    	{
     		ScicRxIndex %= SCICRXMAXBUF;
+    	}
     }
 
 	//ScicRegs.SCIRXST.all = 0x0;
