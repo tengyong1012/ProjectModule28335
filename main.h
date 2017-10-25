@@ -15,6 +15,7 @@
 #include "e2prom.h"
 #include "sram.h"
 #include "Runtime.h"
+#include "CycleBuffer.h"
 
 #define CPU_FRQ_150MHZ 1
 

@@ -10,10 +10,10 @@
 
 #include "DSP2833x_Device.h"
 
-#define MaxMillSeconds 1000
-#define MaxSeconds 60
-#define MaxMinutes 60
-#define MaxHours 24
+#define MAXMILLSECONDS 1000
+#define MAXSECONDS 60
+#define MAXMINUTES 60
+#define MAXHOURS 24
 
 typedef struct REALTIME
 {

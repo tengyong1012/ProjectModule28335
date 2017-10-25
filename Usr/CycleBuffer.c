@@ -61,7 +61,9 @@ int CheckQueFull(CycleQue *pCycleQue)
 int GetQueLen(CycleQue *pCycleQue)
 {
 	if (CheckQueFull(pCycleQue) == 1)
+	{
 		return BUFMAXLEN;
+	}
 
 	if (pCycleQue->head > pCycleQue->tail)
 	{
@@ -82,13 +84,18 @@ int GetQueLen(CycleQue *pCycleQue)
  * 功能：
  * 输入：
  * 输出：
- * 返回值：-1:缓冲区不足，1:缓冲区满
+ * 返回值：-1:缓冲区不足,新数据覆盖旧数据；1:缓冲区满；0:成功加入到队列
  * 修改历史：
  ***************************************************************************/
 int AddInQue(Uint16 *data,Uint16 len, CycleQue *pCycleQue)
 {
     int leftcount = 0;
 
+    if (len <= 0)
+    {
+    	return ERRPARAIN;
+    }
+    //if queue is full,new data will rewrite old data,and tail will equal head
     if (pCycleQue->fullflag == 1)
     {
     	pCycleQue->overwrite++;
@@ -104,23 +111,26 @@ int AddInQue(Uint16 *data,Uint16 len, CycleQue *pCycleQue)
     		}
     	}
     	pCycleQue->head = pCycleQue->tail;
-    	pCycleQue->fullflag = 1;
-    	return -1;
+    	pCycleQue->fullflag = OVERWRITE;
+    	return OVERWRITE;
     }
     else if (pCycleQue->fullflag == 0)
     {
+    	//get real data length
     	if (pCycleQue->tail > pCycleQue->head)
     	{
-    		leftcount = pCycleQue->tail - pCycleQue->head;
+    		leftcount = BUFMAXLEN -(pCycleQue->tail - pCycleQue->head);
     	}
     	else if(pCycleQue->tail < pCycleQue->head)
     	{
-    		leftcount = pCycleQue->head - pCycleQue->tail;
+    		leftcount = BUFMAXLEN -(pCycleQue->head - pCycleQue->tail);
     	}
     	else
     	{
     		leftcount = BUFMAXLEN;
     	}
+
+    	//normal add new data
         if (leftcount > len)
         {
         	while(len > 0)
@@ -134,8 +144,9 @@ int AddInQue(Uint16 *data,Uint16 len, CycleQue *pCycleQue)
         			pCycleQue->tail %= BUFMAXLEN;
         		}
         	}
-        	return 0;
+        	return ADDDATAOK;
         }
+    	//new data length more than now, the queue will be full and set the flag
         else
         {
         	while(len > 0)
@@ -150,13 +161,14 @@ int AddInQue(Uint16 *data,Uint16 len, CycleQue *pCycleQue)
         		}
         	}
         	pCycleQue->head = pCycleQue->tail;
-        	pCycleQue->fullflag = 1;
-        	return 1;
+        	pCycleQue->fullflag = OVERWRITE;
+        	pCycleQue->overwrite++;
+        	return OVERWRITE;
         }
     }
     else
     {
-    	return -1;
+    	return ERRFULLFLAG;
     }
 }
 
@@ -168,9 +180,75 @@ int AddInQue(Uint16 *data,Uint16 len, CycleQue *pCycleQue)
  * 返回值：
  * 修改历史：
  ***************************************************************************/
-Uint16 MovOutQue(CycleQue *pCycleQue, Uint16 *des, Uint16 len)
+int MovOutQue(CycleQue *pCycleQue, Uint16 *des, Uint16 len)
 {
-      return 0;
+	  int datacount = 0, lentmp = 0;
+      //判断参数是否合法
+	  if (len <= 0)
+	  {
+		  return ERRPARAIN;
+	  }
+	  lentmp = len;
+      //对于不满的队列，获取有效数据的长度
+	  if (pCycleQue->fullflag == 0)
+	  {
+		  if (pCycleQue->tail > pCycleQue->head)
+		  {
+			  datacount = pCycleQue->tail - pCycleQue->head;
+		  }
+		  else if(pCycleQue->tail < pCycleQue->head)
+		  {
+			  datacount = pCycleQue->head - pCycleQue->tail;
+		  }
+		  else
+		  {
+			  datacount = 0;
+		  }
+	  }
+	  else if (pCycleQue->fullflag == 1)
+	  {
+		  datacount = BUFMAXLEN;
+	  }
+	  else
+	  {
+		  return ERRFULLFLAG;
+	  }
+
+	  if (datacount >= lentmp)
+	  {
+		  while(lentmp > 0)
+		  {
+			  *des = pCycleQue->data[pCycleQue->head];
+			  des++;
+			  lentmp--;
+			  pCycleQue->head++;
+			  if (pCycleQue->head >= BUFMAXLEN)
+			  {
+				  pCycleQue->head %= BUFMAXLEN;
+			  }
+		  }
+		  pCycleQue->fullflag = 0;
+		  return len;
+	  }
+	  else
+	  {
+		  return LACKDATA;
+	  }
+}
+
+/***************************************************************************
+ * 函数名：
+ * 功能：
+ * 输入：
+ * 输出：
+ * 返回值：
+ * 修改历史：
+ ***************************************************************************/
+void ClearQueData(CycleQue *pCycleQue)
+{
+	pCycleQue->head = 0;
+	pCycleQue->tail = 0;
+	pCycleQue->fullflag = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -21,18 +21,15 @@ extern "C"
 #endif
 
 #include "DSP2833x_Device.h"
-
+#include "CycleBuffer.h"
 
 #define SCICRXMAXBUF 256
 #define SCICTXMAXBUF 256
-
-extern Uint16 ScicBuf[256];
-extern Uint16 ScicRxIndex;
-extern Uint16 ScicTxIndex;
-extern Uint16 ScicRxTail;
-extern Uint16 ScicTxTail;
+#define TXFIFOLEN 8
+#define RXFIFOLEN 16
 
 extern void scicinit(void);
+extern void OpenTxInterrupt(void);
 interrupt void scictx_isr(void);
 interrupt void scicrx_isr(void);
 

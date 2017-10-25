@@ -9,12 +9,6 @@
 //
 #include "scia.h"     // DSP2833x Headerfile Include File
 
-
-//CycleBuffer ScicTxBuf;
-Uint16 ScicRxBuf[SCICRXMAXBUF];
-Uint16 ScicTxBuf[SCICTXMAXBUF];
-Uint16 ScicRxIndex, ScicTxIndex;
-Uint16 ScicRxTail, ScicTxTail;
 /***************************************************************************
  * 函数名：
  * 功能：
@@ -44,8 +38,6 @@ void scicinit()
 	ScicRegs.SCICTL1.all |= (Uint16)0x20;//reset and clear all flags
 
     EDIS;
-    ScicTxBuf[1] = 0x5A;
-    ScicRegs.SCITXBUF = ScicTxBuf[1];
 }
 
 /***************************************************************************
@@ -58,6 +50,7 @@ void scicinit()
  ***************************************************************************/
 void scicfifoinit()
 {
+	Uint16 datatmp = 0;
     EALLOW;
 
     GpioCtrlRegs.GPBPUD.bit.GPIO62 = 0;  // Enable pull-up for GPIO62 (SCIRXDC)
@@ -74,30 +67,17 @@ void scicfifoinit()
 	ScicRegs.SCILBAUD = (Uint16)0x79;//38400bps LSPCLK=37.5MHz
 	ScicRegs.SCICTL2.all |= (Uint16)0x03;
 
+	datatmp = (TXFIFOLEN | 0xc020);
+	ScicRegs.SCIFFTX.all = datatmp;
+	datatmp = (RXFIFOLEN | 0x1020);
+	ScicRegs.SCIFFRX.all = datatmp;
 
-	ScicRegs.SCIFFTX.all = 0xc030;
-	ScicRegs.SCIFFRX.all = 0x1030;
 	ScicRegs.SCIFFCT.all = 0;
-
 	ScicRegs.SCICTL1.all = 0x0023;
 	ScicRegs.SCICTL1.bit.TXENA = 0;
 	ScicRegs.SCIFFTX.bit.TXFIFOXRESET = 1;
 	ScicRegs.SCIFFRX.bit.RXFIFORESET = 1;
     EDIS;
-
-    /*for(i = 0; i < 16; i++)
-    {
-    	ScicTxBuf[i] = 'A' + i;
-    }
-
-    for(i = 0; i < 16; i++)
-    {
-    	ScicRegs.SCITXBUF = ScicTxBuf[i];
-    }*/
-    ScicRxIndex = 0;
-    ScicTxIndex = 0;
-    ScicRxTail = 0;
-    ScicTxTail = 0;
 }
 /***************************************************************************
  * 函数名：
@@ -124,7 +104,10 @@ interrupt void scictx_isr(void)     // SCI-C tx interrupt
  ***************************************************************************/
 interrupt void scicrx_isr(void)     // SCI-C rx interrupt
 {
-	ScicRxBuf[0] = ScicRegs.SCIRXBUF.all;
+	Uint16 datatmp = 0;
+	datatmp = ScicRegs.SCIRXBUF.all;
+	AddInQue(&datatmp, 1, &ScicTxQue);
+
 	ScicRegs.SCIRXST.all = 0x0;
 	PieCtrlRegs.PIEACK.all |= 0x100;
 }
@@ -139,19 +122,22 @@ interrupt void scicrx_isr(void)     // SCI-C rx interrupt
  ***************************************************************************/
 interrupt void scicfifotx_isr(void)     // SCI-C fifo tx interrupt
 {
-	int i = 0;
+	int i = 0, lentmp = TXFIFOLEN;
+	Uint16 datatmp[16];
 
-	//temp = ScicTxIndex % 16;
 
-    for(i = 0; i < 16; i++)
-    {
-    	ScicRegs.SCITXBUF = ScicTxBuf[ScicTxIndex];
-    	ScicTxIndex--;
-    	if (ScicTxIndex == 0)
-    	{
-    		ScicRegs.SCICTL1.bit.TXENA = 0;
-    	}
-    }
+	if (MovOutQue(&ScicTxQue, datatmp, lentmp) >= TXFIFOLEN)
+	{
+	    for(i = 0; i < TXFIFOLEN; i++)
+	    {
+	    	ScicRegs.SCITXBUF = datatmp[i];
+	    }
+	}
+	else
+	{
+
+		ScicRegs.SCICTL1.bit.TXENA = 0;
+	}
 
 	//ScicRegs.SCIRXST.all = 0x0;
 	ScicRegs.SCIFFTX.bit.TXFFINTCLR = 1;
@@ -169,32 +155,33 @@ interrupt void scicfifotx_isr(void)     // SCI-C fifo tx interrupt
 interrupt void scicfiforx_isr(void)     // SCI-C fifo rx interrupt
 {
 	int i = 0;
+    Uint16 datatmp[16];
 
-    for(i = 0; i < 16; i++)
+    for(i = 0; i < RXFIFOLEN; i++)
     {
-    	ScicRxBuf[ScicRxIndex] = ScicRegs.SCIRXBUF.all;
-    	//test fifo tx
-    	ScicTxBuf[ScicTxIndex] = ScicRxBuf[ScicRxIndex];
-    	ScicTxIndex++;
-    	if (ScicTxIndex >= SCICTXMAXBUF)
-    	{
-    		ScicTxIndex %= SCICTXMAXBUF;
-    	}
-    	if (ScicTxIndex >= 16)
-    	{
-    		ScicRegs.SCICTL1.bit.TXENA = 1;
-    	}
-    	////////////////////////////////////////////////////////////
-    	ScicRxIndex++;
-
-    	if (ScicRxIndex >= SCICRXMAXBUF)
-    	{
-    		ScicRxIndex %= SCICRXMAXBUF;
-    	}
+    	datatmp[i] = ScicRegs.SCIRXBUF.all;
     }
+    AddInQue(datatmp, i, &ScicTxQue);
+    //OpenTxInterrupt();
 
 	//ScicRegs.SCIRXST.all = 0x0;
     ScicRegs.SCIFFRX.bit.RXFFOVRCLR = 1;
 	ScicRegs.SCIFFRX.bit.RXFFINTCLR = 1;
 	PieCtrlRegs.PIEACK.all |= 0x100;
 }
+
+/***************************************************************************
+ * 函数名：
+ * 功能：
+ * 输入：
+ * 输出：
+ * 返回值：
+ * 修改历史：
+ ***************************************************************************/
+void OpenTxInterrupt(void)
+{
+	ScicRegs.SCICTL1.bit.TXENA = 1;
+}
+
+////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////

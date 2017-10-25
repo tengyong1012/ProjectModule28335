@@ -116,6 +116,9 @@ int main(void)
 	   EDIS;
 	   RealTimerInit();
        InitSram();
+
+       CycleQueInit(&ScicRxQue);
+       CycleQueInit(&ScicTxQue);
        //InitExRam(0);
        //ReadToBuffer(10, 10, ArrayA);
        //WriteConstantToSram(10, 10, 0xc33c);
@@ -144,6 +147,10 @@ int main(void)
     	commonfunc1();
     	commonfunc2();
     	commonfunc3();
+    	if (GetQueLen(&ScicTxQue) >= TXFIFOLEN)
+    	{
+    		OpenTxInterrupt();
+    	}
     }
 }
 
