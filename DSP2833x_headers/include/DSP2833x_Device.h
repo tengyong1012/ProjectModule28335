@@ -94,6 +94,11 @@ typedef unsigned long      Uint32;
 typedef unsigned long long Uint64;
 typedef float              float32;
 typedef long double        float64;
+typedef enum
+{
+	false = 0,
+	true = 1
+}bool;
 #endif
 
 //

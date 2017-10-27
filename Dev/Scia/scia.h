@@ -1,15 +1,9 @@
-//###########################################################################
-//
-// FILE:   scia.h
-//
-// TITLE:  DSP2833x Device Definitions.
-//
-//###########################################################################
-// $TI Release: F2833x/F2823x Header Files and Peripheral Examples V142 $
-// $Release Date:  2017.10.11
-// $Copyright: Copyright (C) 2007-2016 Texas Instruments Incorporated -
-//             http://www.ti.com/ ALL RIGHTS RESERVED $
-//###########################################################################
+/***************************************************************************
+ * File Name
+ * Author:
+ * Mend Histroy:
+ * Description:
+ ***************************************************************************/
 
 #ifndef DSP2833x_SCIA_H
 #define DSP2833x_SCIA_H
@@ -28,6 +22,26 @@ extern "C"
 #define TXFIFOLEN 8
 #define RXFIFOLEN 16
 
+
+typedef struct ERRORCOUNTER
+{
+	bool err;
+	Uint16 errcount;
+}ErrorCount;
+
+typedef struct SCIERRFLG
+{
+	ErrorCount brkdt;
+	ErrorCount fe;
+	ErrorCount oe;
+	ErrorCount pe;
+	ErrorCount rxffov;
+	ErrorCount fffe;
+	ErrorCount ffpe;
+}SciErrFlg;
+
+
+extern SciErrFlg ScicErrFlag;
 extern void scicinit(void);
 extern void OpenTxInterrupt(void);
 interrupt void scictx_isr(void);

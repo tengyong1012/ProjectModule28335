@@ -1,11 +1,10 @@
 /***************************************************************************
- * 文件名：
- * 作者：
- * 修改历史：
- * 功能：
+ * File Name
+ * Author:
+ * Mend Histroy:
+ * Description:
  ***************************************************************************/
 #include "CycleBuffer.h"
-
 
 
 CycleQue ScicTxQue;
@@ -13,12 +12,12 @@ CycleQue ScicRxQue;
 
 
 /***************************************************************************
- * 函数名：
- * 功能：
- * 输入：
- * 输出：
- * 返回值：
- * 修改历史：
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
  ***************************************************************************/
 void CycleQueInit(CycleQue *pCycleQue)
 {
@@ -36,12 +35,12 @@ void CycleQueInit(CycleQue *pCycleQue)
 }
 
 /***************************************************************************
- * 函数名：
- * 功能：
- * 输入：
- * 输出：
- * 返回值：1:队列满,0:队列不满
- * 修改历史：
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
  ***************************************************************************/
 int CheckQueFull(CycleQue *pCycleQue)
 {
@@ -51,12 +50,12 @@ int CheckQueFull(CycleQue *pCycleQue)
 
 
 /***************************************************************************
- * 函数名：
- * 功能：
- * 输入：
- * 输出：
- * 返回值：-1:队列满
- * 修改历史：
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
  ***************************************************************************/
 int GetQueLen(CycleQue *pCycleQue)
 {
@@ -80,12 +79,12 @@ int GetQueLen(CycleQue *pCycleQue)
 }
 
 /***************************************************************************
- * 函数名：
- * 功能：
- * 输入：
- * 输出：
- * 返回值：-1:缓冲区不足,新数据覆盖旧数据；1:缓冲区满；0:成功加入到队列
- * 修改历史：
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
  ***************************************************************************/
 int AddInQue(Uint16 *data,Uint16 len, CycleQue *pCycleQue)
 {
@@ -173,12 +172,12 @@ int AddInQue(Uint16 *data,Uint16 len, CycleQue *pCycleQue)
 }
 
 /***************************************************************************
- * 函数名：
- * 功能：
- * 输入：
- * 输出：
- * 返回值：
- * 修改历史：
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
  ***************************************************************************/
 int MovOutQue(CycleQue *pCycleQue, Uint16 *des, Uint16 len)
 {
@@ -237,12 +236,12 @@ int MovOutQue(CycleQue *pCycleQue, Uint16 *des, Uint16 len)
 }
 
 /***************************************************************************
- * 函数名：
- * 功能：
- * 输入：
- * 输出：
- * 返回值：
- * 修改历史：
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
  ***************************************************************************/
 void ClearQueData(CycleQue *pCycleQue)
 {

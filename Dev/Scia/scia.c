@@ -1,21 +1,23 @@
 /***************************************************************************
- * 文件名：
- * 作者：
- * 修改历史：
- * 功能：
+ * File Name
+ * Author:
+ * Mend Histroy:
+ * Description:
  ***************************************************************************/
 //
 // Included Files
 //
 #include "scia.h"     // DSP2833x Headerfile Include File
 
+
+SciErrFlg ScicErrFlag;
 /***************************************************************************
- * 函数名：
- * 功能：
- * 输入：
- * 输出：
- * 返回值：
- * 修改历史：
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
  ***************************************************************************/
 void scicinit()
 {
@@ -37,16 +39,36 @@ void scicinit()
 	ScicRegs.SCICTL1.all = (Uint16)0x83;
 	ScicRegs.SCICTL1.all |= (Uint16)0x20;//reset and clear all flags
 
+	ScicErrFlag.brkdt.err = false;
+	ScicErrFlag.brkdt.errcount = 0;
+
+	ScicErrFlag.fe.err = false;
+	ScicErrFlag.fe.errcount = 0;
+
+	ScicErrFlag.oe.err = false;
+	ScicErrFlag.oe.errcount = 0;
+
+	ScicErrFlag.pe.err = false;
+	ScicErrFlag.pe.errcount = 0;
+
+	ScicErrFlag.rxffov.err = false;
+	ScicErrFlag.rxffov.errcount = 0;
+
+	ScicErrFlag.fffe.err = false;
+	ScicErrFlag.fffe.errcount = 0;
+
+	ScicErrFlag.ffpe.err = false;
+	ScicErrFlag.ffpe.errcount = 0;
     EDIS;
 }
 
 /***************************************************************************
- * 函数名：
- * 功能：
- * 输入：
- * 输出：
- * 返回值：
- * 修改历史：
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
  ***************************************************************************/
 void scicfifoinit()
 {
@@ -77,15 +99,38 @@ void scicfifoinit()
 	ScicRegs.SCICTL1.bit.TXENA = 0;
 	ScicRegs.SCIFFTX.bit.TXFIFOXRESET = 1;
 	ScicRegs.SCIFFRX.bit.RXFIFORESET = 1;
+
+	ScicErrFlag.brkdt.err = false;
+	ScicErrFlag.brkdt.errcount = 0;
+
+	ScicErrFlag.fe.err = false;
+	ScicErrFlag.fe.errcount = 0;
+
+	ScicErrFlag.oe.err = false;
+	ScicErrFlag.oe.errcount = 0;
+
+	ScicErrFlag.pe.err = false;
+	ScicErrFlag.pe.errcount = 0;
+
+	ScicErrFlag.rxffov.err = false;
+	ScicErrFlag.rxffov.errcount = 0;
+
+	ScicErrFlag.fffe.err = false;
+	ScicErrFlag.fffe.errcount = 0;
+
+	ScicErrFlag.ffpe.err = false;
+	ScicErrFlag.ffpe.errcount = 0;
+
     EDIS;
 }
+
 /***************************************************************************
- * 函数名：
- * 功能：
- * 输入：
- * 输出：
- * 返回值：
- * 修改历史：
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
  ***************************************************************************/
 interrupt void scictx_isr(void)     // SCI-C tx interrupt
 {
@@ -95,12 +140,12 @@ interrupt void scictx_isr(void)     // SCI-C tx interrupt
 }
 
 /***************************************************************************
- * 函数名：
- * 功能：
- * 输入：
- * 输出：
- * 返回值：
- * 修改历史：
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
  ***************************************************************************/
 interrupt void scicrx_isr(void)     // SCI-C rx interrupt
 {
@@ -113,19 +158,19 @@ interrupt void scicrx_isr(void)     // SCI-C rx interrupt
 }
 
 /***************************************************************************
- * 函数名：
- * 功能：
- * 输入：
- * 输出：
- * 返回值：
- * 修改历史：
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
  ***************************************************************************/
 interrupt void scicfifotx_isr(void)     // SCI-C fifo tx interrupt
 {
 	int i = 0, lentmp = TXFIFOLEN;
 	Uint16 datatmp[16];
 
-
+    //move queue data to fifo, wait for next fifo empty interrupt
 	if (MovOutQue(&ScicTxQue, datatmp, lentmp) >= TXFIFOLEN)
 	{
 	    for(i = 0; i < TXFIFOLEN; i++)
@@ -135,48 +180,91 @@ interrupt void scicfifotx_isr(void)     // SCI-C fifo tx interrupt
 	}
 	else
 	{
-
 		ScicRegs.SCICTL1.bit.TXENA = 0;
 	}
 
-	//ScicRegs.SCIRXST.all = 0x0;
 	ScicRegs.SCIFFTX.bit.TXFFINTCLR = 1;
 	PieCtrlRegs.PIEACK.all |= 0x100;
 }
 
 /***************************************************************************
- * 函数名：
- * 功能：
- * 输入：
- * 输出：
- * 返回值：
- * 修改历史：
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
  ***************************************************************************/
 interrupt void scicfiforx_isr(void)     // SCI-C fifo rx interrupt
 {
 	int i = 0;
     Uint16 datatmp[16];
 
-    for(i = 0; i < RXFIFOLEN; i++)
+    if (ScicRegs.SCIRXST.bit.RXERROR == true)
     {
-    	datatmp[i] = ScicRegs.SCIRXBUF.all;
-    }
-    AddInQue(datatmp, i, &ScicTxQue);
-    //OpenTxInterrupt();
+    	if (ScicRegs.SCIRXST.bit.BRKDT == true)
+    	{
+    		ScicErrFlag.brkdt.err = true;
+    		ScicErrFlag.brkdt.errcount += 1;
+    	}
 
-	//ScicRegs.SCIRXST.all = 0x0;
+    	if (ScicRegs.SCIRXST.bit.FE == true)
+    	{
+    		ScicErrFlag.fe.err = true;
+    		ScicErrFlag.fe.errcount += 1;
+    	}
+
+    	if (ScicRegs.SCIRXST.bit.OE == true)
+    	{
+    		ScicErrFlag.oe.err = true;
+    		ScicErrFlag.oe.errcount += 1;
+    	}
+
+    	if (ScicRegs.SCIRXST.bit.PE == true)
+    	{
+    		ScicErrFlag.pe.err = true;
+    		ScicErrFlag.pe.errcount += 1;
+    	}
+
+    	if (ScicRegs.SCIFFRX.bit.RXFFOVF == true)
+    	{
+    		ScicErrFlag.rxffov.err = true;
+    		ScicErrFlag.rxffov.errcount += 1;
+    	}
+
+    	if (ScicRegs.SCIRXBUF.bit.SCIFFFE == true)
+    	{
+    		ScicErrFlag.fffe.err = true;
+    		ScicErrFlag.fffe.errcount += 1;
+    	}
+
+    	if (ScicRegs.SCIRXBUF.bit.SCIFFPE == true)
+    	{
+    		ScicErrFlag.ffpe.err = true;
+    		ScicErrFlag.ffpe.errcount += 1;
+    	}
+    }
+    else
+    {
+		for(i = 0; i < RXFIFOLEN; i++)
+		{
+			datatmp[i] = ScicRegs.SCIRXBUF.all;
+		}
+		AddInQue(datatmp, i, &ScicTxQue);
+    }
+
     ScicRegs.SCIFFRX.bit.RXFFOVRCLR = 1;
 	ScicRegs.SCIFFRX.bit.RXFFINTCLR = 1;
 	PieCtrlRegs.PIEACK.all |= 0x100;
 }
 
 /***************************************************************************
- * 函数名：
- * 功能：
- * 输入：
- * 输出：
- * 返回值：
- * 修改历史：
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
  ***************************************************************************/
 void OpenTxInterrupt(void)
 {

@@ -1,9 +1,9 @@
-/*
- * Runtime.h
- *
- *  Created on: 2017Äê10ÔÂ23ÈÕ
- *      Author: Wiiboox
- */
+/***************************************************************************
+ * File Name
+ * Author:
+ * Mend Histroy:
+ * Description:
+ ***************************************************************************/
 
 #ifndef RUNTIME_H_
 #define RUNTIME_H_
