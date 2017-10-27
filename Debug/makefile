@@ -16,6 +16,7 @@ $(GEN_CMDS__FLAG) \
 "./Dev/I2c/i2c.obj" \
 "./Dev/Gpio/gpio.obj" \
 "./Dev/E2prom/e2prom.obj" \
+"./Dev/Can/can.obj" \
 "./DSP2833x_headers/source/DSP2833x_GlobalVariableDefs.obj" \
 "./DSP2833x_common/source/DSP2833x_ADC_cal.obj" \
 "./DSP2833x_common/source/DSP2833x_Adc.obj" \
@@ -59,6 +60,7 @@ RMDIR := RMDIR /S/Q
 -include Dev/I2c/subdir_vars.mk
 -include Dev/Gpio/subdir_vars.mk
 -include Dev/E2prom/subdir_vars.mk
+-include Dev/Can/subdir_vars.mk
 -include DSP2833x_headers/source/subdir_vars.mk
 -include DSP2833x_headers/cmd/subdir_vars.mk
 -include DSP2833x_common/source/subdir_vars.mk
@@ -70,6 +72,7 @@ RMDIR := RMDIR /S/Q
 -include Dev/I2c/subdir_rules.mk
 -include Dev/Gpio/subdir_rules.mk
 -include Dev/E2prom/subdir_rules.mk
+-include Dev/Can/subdir_rules.mk
 -include DSP2833x_headers/source/subdir_rules.mk
 -include DSP2833x_headers/cmd/subdir_rules.mk
 -include DSP2833x_common/source/subdir_rules.mk
@@ -193,8 +196,8 @@ all: 28335Module.out
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)$(BIN_OUTPUTS__QUOTED)
-	-$(RM) "main.pp" "Usr\CycleBuffer.pp" "Usr\Runtime.pp" "Dev\Sram\sram.pp" "Dev\Scia\scia.pp" "Dev\I2c\i2c.pp" "Dev\Gpio\gpio.pp" "Dev\E2prom\e2prom.pp" "DSP2833x_headers\source\DSP2833x_GlobalVariableDefs.pp" "DSP2833x_common\source\DSP2833x_Adc.pp" "DSP2833x_common\source\DSP2833x_CpuTimers.pp" "DSP2833x_common\source\DSP2833x_DefaultIsr.pp" "DSP2833x_common\source\DSP2833x_ECan.pp" "DSP2833x_common\source\DSP2833x_ECap.pp" "DSP2833x_common\source\DSP2833x_EPwm.pp" "DSP2833x_common\source\DSP2833x_EQep.pp" "DSP2833x_common\source\DSP2833x_Gpio.pp" "DSP2833x_common\source\DSP2833x_I2C.pp" "DSP2833x_common\source\DSP2833x_PieCtrl.pp" "DSP2833x_common\source\DSP2833x_PieVect.pp" "DSP2833x_common\source\DSP2833x_Sci.pp" "DSP2833x_common\source\DSP2833x_Spi.pp" "DSP2833x_common\source\DSP2833x_SysCtrl.pp" "DSP2833x_common\source\DSP2833x_Xintf.pp" 
-	-$(RM) "main.obj" "Usr\CycleBuffer.obj" "Usr\Runtime.obj" "Dev\Sram\sram.obj" "Dev\Scia\scia.obj" "Dev\I2c\i2c.obj" "Dev\Gpio\gpio.obj" "Dev\E2prom\e2prom.obj" "DSP2833x_headers\source\DSP2833x_GlobalVariableDefs.obj" "DSP2833x_common\source\DSP2833x_ADC_cal.obj" "DSP2833x_common\source\DSP2833x_Adc.obj" "DSP2833x_common\source\DSP2833x_CodeStartBranch.obj" "DSP2833x_common\source\DSP2833x_CpuTimers.obj" "DSP2833x_common\source\DSP2833x_DefaultIsr.obj" "DSP2833x_common\source\DSP2833x_ECan.obj" "DSP2833x_common\source\DSP2833x_ECap.obj" "DSP2833x_common\source\DSP2833x_EPwm.obj" "DSP2833x_common\source\DSP2833x_EQep.obj" "DSP2833x_common\source\DSP2833x_Gpio.obj" "DSP2833x_common\source\DSP2833x_I2C.obj" "DSP2833x_common\source\DSP2833x_PieCtrl.obj" "DSP2833x_common\source\DSP2833x_PieVect.obj" "DSP2833x_common\source\DSP2833x_Sci.obj" "DSP2833x_common\source\DSP2833x_Spi.obj" "DSP2833x_common\source\DSP2833x_SysCtrl.obj" "DSP2833x_common\source\DSP2833x_Xintf.obj" "DSP2833x_common\source\DSP2833x_usDelay.obj" 
+	-$(RM) "main.pp" "Usr\CycleBuffer.pp" "Usr\Runtime.pp" "Dev\Sram\sram.pp" "Dev\Scia\scia.pp" "Dev\I2c\i2c.pp" "Dev\Gpio\gpio.pp" "Dev\E2prom\e2prom.pp" "Dev\Can\can.pp" "DSP2833x_headers\source\DSP2833x_GlobalVariableDefs.pp" "DSP2833x_common\source\DSP2833x_Adc.pp" "DSP2833x_common\source\DSP2833x_CpuTimers.pp" "DSP2833x_common\source\DSP2833x_DefaultIsr.pp" "DSP2833x_common\source\DSP2833x_ECan.pp" "DSP2833x_common\source\DSP2833x_ECap.pp" "DSP2833x_common\source\DSP2833x_EPwm.pp" "DSP2833x_common\source\DSP2833x_EQep.pp" "DSP2833x_common\source\DSP2833x_Gpio.pp" "DSP2833x_common\source\DSP2833x_I2C.pp" "DSP2833x_common\source\DSP2833x_PieCtrl.pp" "DSP2833x_common\source\DSP2833x_PieVect.pp" "DSP2833x_common\source\DSP2833x_Sci.pp" "DSP2833x_common\source\DSP2833x_Spi.pp" "DSP2833x_common\source\DSP2833x_SysCtrl.pp" "DSP2833x_common\source\DSP2833x_Xintf.pp" 
+	-$(RM) "main.obj" "Usr\CycleBuffer.obj" "Usr\Runtime.obj" "Dev\Sram\sram.obj" "Dev\Scia\scia.obj" "Dev\I2c\i2c.obj" "Dev\Gpio\gpio.obj" "Dev\E2prom\e2prom.obj" "Dev\Can\can.obj" "DSP2833x_headers\source\DSP2833x_GlobalVariableDefs.obj" "DSP2833x_common\source\DSP2833x_ADC_cal.obj" "DSP2833x_common\source\DSP2833x_Adc.obj" "DSP2833x_common\source\DSP2833x_CodeStartBranch.obj" "DSP2833x_common\source\DSP2833x_CpuTimers.obj" "DSP2833x_common\source\DSP2833x_DefaultIsr.obj" "DSP2833x_common\source\DSP2833x_ECan.obj" "DSP2833x_common\source\DSP2833x_ECap.obj" "DSP2833x_common\source\DSP2833x_EPwm.obj" "DSP2833x_common\source\DSP2833x_EQep.obj" "DSP2833x_common\source\DSP2833x_Gpio.obj" "DSP2833x_common\source\DSP2833x_I2C.obj" "DSP2833x_common\source\DSP2833x_PieCtrl.obj" "DSP2833x_common\source\DSP2833x_PieVect.obj" "DSP2833x_common\source\DSP2833x_Sci.obj" "DSP2833x_common\source\DSP2833x_Spi.obj" "DSP2833x_common\source\DSP2833x_SysCtrl.obj" "DSP2833x_common\source\DSP2833x_Xintf.obj" "DSP2833x_common\source\DSP2833x_usDelay.obj" 
 	-$(RM) "DSP2833x_common\source\DSP2833x_ADC_cal.pp" "DSP2833x_common\source\DSP2833x_CodeStartBranch.pp" "DSP2833x_common\source\DSP2833x_usDelay.pp" 
 	-@echo 'Finished clean'
 	-@echo ' '

@@ -109,6 +109,7 @@ Dev/Scia \
 Dev/I2c \
 Dev/Gpio \
 Dev/E2prom \
+Dev/Can \
 DSP2833x_headers/source \
 DSP2833x_headers/cmd \
 DSP2833x_common/source \
