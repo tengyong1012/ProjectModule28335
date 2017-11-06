@@ -7,7 +7,7 @@
 
 #include "can.h"     // DSP2833x Headerfile Include File
 
-CanObj Can[2];//Can[0]-cana, Can[1]-canb
+CanObj Can[4];//Can[0]-canatx, Can[1]-canarx, Can[2]-canbtx, Can[3]-canbrx
 /***************************************************************************
  * Name         :
  * Decription   :
@@ -48,8 +48,7 @@ bool CanInit(CanObj *pCanObj)
 
 	errorflag = CanGpioInit(pCanObj->name);
 	if(errorflag == false) return false;
-
-
+	else return true;
 }
 
 /***************************************************************************
@@ -480,6 +479,544 @@ void InitCanb(void)
     EDIS;
 }
 
+/***************************************************************************
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
+ ***************************************************************************/
+bool ConfigTxnMb(char name, Uint32 Index, Uint32 Msgid, Uint32 dlc)
+{
+	bool flag = false;
+	struct ECAN_REGS ECanShadow;
+	struct ECAN_MBOXES *pEcan_Mboxes = &ECanaMboxes;
 
+    switch (name)
+    {
+		 case 'a':
+		 case 'A':
+		 {
+			 //disable trs by clearing trr corresponding bit
+			 pEcan_Mboxes = &ECanaMboxes;
+			 ECanShadow.CANTRR.all =  ECanaRegs.CANTRR.all;
+			 ECanShadow.CANTRR.all |= (1 << Index);
+			 ECanaRegs.CANTRR.all = ECanShadow.CANTRR.all;
+			 do
+			 {
+				 ECanShadow.CANTRS.all = ECanaRegs.CANTRS.all;
+			 }while((ECanShadow.CANTRS.all & (1 << Index)) == 0);
+             //disable tx mailbox for config
+			 ECanShadow.CANME.all = ECanaRegs.CANME.all;
+			 ECanShadow.CANME.all &= ~(1 << Index);
+			 ECanaRegs.CANME.all = ECanShadow.CANME.all;
+             //config msgid and dlc
+			 *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MSGID = Msgid;
+			 *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MSGCTRL = dlc;
+             //config direction for mailbox
+			 ECanShadow.CANMD.all = ECanaRegs.CANMD.all;
+			 ECanShadow.CANMD.all &= ~(1 << Index);
+			 ECanaRegs.CANMD.all = ECanShadow.CANMD.all;
+             //enable configured mailbox
+			 ECanShadow.CANME.all = ECanaRegs.CANME.all;
+			 ECanShadow.CANME.all |= (1 << Index);
+			 ECanaRegs.CANME.all = ECanShadow.CANME.all;
+
+
+			 Can[0].canframe.dlc = dlc;
+			 Can[0].canframe.canid = Msgid;
+			 flag = true;
+		 }
+		 break;
+
+		 case 'b':
+		 case 'B':
+		 {
+			 //disable trs by clearing trr corresponding bit
+			 pEcan_Mboxes = &ECanbMboxes;
+			 ECanShadow.CANTRR.all =  ECanbRegs.CANTRR.all;
+			 ECanShadow.CANTRR.all |= (1 << Index);
+			 ECanbRegs.CANTRR.all = ECanShadow.CANTRR.all;
+			 do
+			 {
+				 ECanShadow.CANTRS.all = ECanbRegs.CANTRS.all;
+			 }while((ECanShadow.CANTRS.all & (1 << Index)) == 0);
+             //disable tx mailbox for config
+			 ECanShadow.CANME.all = ECanbRegs.CANME.all;
+			 ECanShadow.CANME.all &= ~(1 << Index);
+			 ECanbRegs.CANME.all = ECanShadow.CANME.all;
+             //config msgid and dlc
+			 *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MSGID = Msgid;
+			 *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MSGCTRL = dlc;
+             //config direction for mailbox
+			 ECanShadow.CANMD.all = ECanbRegs.CANMD.all;
+			 ECanShadow.CANMD.all &= ~(1 << Index);
+			 ECanbRegs.CANMD.all = ECanShadow.CANMD.all;
+             //enable configured mailbox
+			 ECanShadow.CANME.all = ECanbRegs.CANME.all;
+			 ECanShadow.CANME.all |= (1 << Index);
+			 ECanbRegs.CANME.all = ECanShadow.CANME.all;
+
+			 Can[2].canframe.dlc = dlc;
+			 flag = true;
+		 }
+		 break;
+
+		 default:
+		 {
+			 flag = false;
+		 }
+		 break;
+    }
+    return flag;
+}
+
+/***************************************************************************
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
+ ***************************************************************************/
+bool TxMBData(char name, Uint32 Index, unsigned char  *data)
+{
+	struct ECAN_REGS ECanShadow;
+	struct ECAN_MBOXES *pEcan_Mboxes = &ECanaMboxes;
+	unsigned char dlc = 0, i = 0;
+    switch (name)
+    {
+		 case 'a':
+		 case 'A':
+		 {
+			 pEcan_Mboxes = &ECanaMboxes;
+			 dlc = Can[0].canframe.dlc;
+
+			 ECanShadow.CANMC.bit.DBO = ECanaRegs.CANMC.bit.DBO;
+			 if (ECanShadow.CANMC.bit.DBO == 0)
+			 {
+				 //little endian mode
+				 while(i < dlc)
+				 {
+					 Can[0].canframe.data[i] = *data;
+					 i++;
+					 data++;
+				 }
+			 }
+			 else
+			 {
+				 //big endian mode
+				 while(dlc > 0)
+				 {
+					 Can[0].canframe.data[dlc] = *data;
+					 dlc--;
+					 data++;
+				 }
+			 }
+
+			 ECanaMboxes.MBOX0.MDH.byte.BYTE7 = Can[0].canframe.data[7];
+			 ECanaMboxes.MBOX0.MDH.byte.BYTE6 = Can[0].canframe.data[6];
+			 ECanaMboxes.MBOX0.MDH.byte.BYTE5 = Can[0].canframe.data[5];
+			 ECanaMboxes.MBOX0.MDH.byte.BYTE4 = Can[0].canframe.data[4];
+			 ECanaMboxes.MBOX0.MDL.byte.BYTE3 = Can[0].canframe.data[3];
+			 ECanaMboxes.MBOX0.MDL.byte.BYTE2 = Can[0].canframe.data[2];
+			 ECanaMboxes.MBOX0.MDL.byte.BYTE1 = Can[0].canframe.data[1];
+			 ECanaMboxes.MBOX0.MDL.byte.BYTE0 = Can[0].canframe.data[0];
+
+			 ECanShadow.CANTRS.all = 0;
+			 ECanShadow.CANTRS.all |= (1 << Index); // Set TRS for mailbox under test
+			 ECanaRegs.CANTRS.all = ECanShadow.CANTRS.all;
+			 do
+			 {
+				 ECanShadow.CANTA.all = ECanaRegs.CANTA.all;
+
+			 } while((ECanShadow.CANTA.all & (1 << Index)) == 0 ); // Wait for TA5 bit to be set..
+			 ECanShadow.CANTA.all = 0;
+			 ECanShadow.CANTA.all &= ~(1 << Index); // Clear TA5
+			 ECanaRegs.CANTA.all = ECanShadow.CANTA.all;
+		 }
+		 break;
+
+		 case 'b':
+		 case 'B':
+		 {
+			 pEcan_Mboxes = &ECanbMboxes;
+
+		 }
+	     break;
+
+		 default:
+		 break;
+    }
+}
+
+/***************************************************************************
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
+ ***************************************************************************/
+bool ConfigTxMb(char name)
+{
+	bool flag = false;
+	struct ECAN_REGS ECanShadow;
+
+    switch (name)
+    {
+		 case 'a':
+		 case 'A':
+		 {
+			 ECanShadow.CANTRR.all =  ECanaRegs.CANTRR.all;
+			 ECanShadow.CANTRR.all |= 0x0000FFFF;
+			 ECanaRegs.CANTRR.all = ECanShadow.CANTRR.all;
+			 do
+			 {
+				 ECanShadow.CANTRS.all = ECanaRegs.CANTRS.all;
+			 }while((ECanShadow.CANTRS.all & 0x0000FFFF) == 0);
+
+			 ECanShadow.CANME.all = ECanaRegs.CANME.all;
+			 ECanShadow.CANME.all &= 0xFFFF0000;
+
+
+			 flag = true;
+		 }
+		 break;
+
+		 case 'b':
+		 case 'B':
+		 {
+			 CanBGpioInit();
+			 flag = true;
+		 }
+		 break;
+
+		 default:
+		 {
+			 flag = false;
+		 }
+		 break;
+    }
+    return flag;
+}
+
+/***************************************************************************
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
+ ***************************************************************************/
+bool ConfigRxnMb(char name, Uint32 Index, Uint32 Msgid)
+{
+	struct ECAN_REGS ECanShadow;
+	struct ECAN_MBOXES *pEcan_Mboxes = &ECanaMboxes;
+	unsigned char dlc = 0, i = 0;
+
+    switch (name)
+    {
+		 case 'a':
+		 case 'A':
+		 {
+			 pEcan_Mboxes = &ECanaMboxes;
+			 //disable corresponding mailbox
+			 ECanShadow.CANME.all = ECanaRegs.CANME.all;
+			 ECanShadow.CANME.all &= ~(1 << Index);
+			 ECanaRegs.CANME.all = ECanShadow.CANME.all;
+			 //write the right msgid for rx mailbox
+			 *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MSGID.all = Msgid;
+			 //set as rx mailbox
+			 ECanShadow.CANMD.all = ECanaRegs.CANMD.all;
+			 ECanShadow.CANMD.all |= (1 << Index);
+			 ECanaRegs.CANMD.all = ECanShadow.CANMD.all;
+			 //enable opc
+			 ECanShadow.CANOPC.all = ECanaRegs.CANOPC.all;
+			 ECanShadow.CANOPC.all |= (1 << Index);
+			 ECanaRegs.CANOPC.all = ECanShadow.CANOPC.all;
+
+			 ECanShadow.CANME.all = ECanaRegs.CANME.all;
+			 ECanShadow.CANME.all |= (1 << Index);
+			 ECanaRegs.CANME.all = ECanShadow.CANME.all;
+			 do
+			 {
+				 ECanShadow.CANME.all = ECanaRegs.CANME.all;
+			 }
+			 while(ECanShadow.CANME.all & (1 << Index) == 0)
+
+
+			 flag = true;
+		 }
+		 break;
+
+		 case 'b':
+		 case 'B':
+		 {
+
+			 flag = true;
+		 }
+		 break;
+
+		 default:
+		 {
+			 flag = false;
+		 }
+		 break;
+    }
+    return flag;
+}
+
+/***************************************************************************
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
+ ***************************************************************************/
+bool ConfigInterrupt(char name)
+{
+	struct ECAN_REGS ECanShadow;
+
+    switch (name)
+    {
+		 case 'a':
+		 case 'A':
+		 {
+			  ECanShadow.CANMIM.all = 0xFFFFFFFF;
+			  ECanaRegs.CANMIM.all = ECanShadow.CANMIM.all;
+			  //config mailbox interrupt as interrupt line1
+			  ECanShadow.CANMIL.all = 0xFFFFFFFF;
+			  ECanaRegs.CANMIL.all = ECanShadow.CANMIL.all;
+			  //enable all interrupt flag, line0 for mailbox,line1 for system
+			  ECanShadow.CANGIM.all = 0xFFFFFFFB;
+			  ECanaRegs.CANGIM.all = ECanShadow.CANGIM.all;
+
+
+		 }
+		 break;
+
+		 case 'b':
+		 case 'B':
+		 {
+			  ECanShadow.CANMIM.all = 0xFFFFFFFF;
+			  ECanbRegs.CANMIM.all = ECanShadow.CANMIM.all;
+			  //config mailbox interrupt as interrupt line1
+			  ECanShadow.CANMIL.all = 0xFFFFFFFF;
+			  ECanbRegs.CANMIL.all = ECanShadow.CANMIL.all;
+			  //enable all interrupt flag, line0 for mailbox,line1 for system
+			  ECanShadow.CANGIM.all = 0xFFFFFFFB;
+			  ECanbRegs.CANGIM.all = ECanShadow.CANGIM.all;
+			  flag = true;
+		 }
+		 break;
+
+		 default:
+		 {
+			 flag = false;
+		 }
+		 break;
+    }
+}
+
+/***************************************************************************
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
+ ***************************************************************************/
+interrupt void ecan0inta_isr(void)//line1
+{
+	struct ECAN_REGS ECanShadow;
+	Uint32 Index = 0;
+
+	ECanShadow.CANGIF0.all = ECanaRegs.CANGIF0.all;
+
+	if (ECanShadow.CANGIF0.bit.GMIF0 == 0)
+	{
+		//abort send data
+		if (ECanShadow.CANGIF0.bit.AAIF0 == 1)
+		{
+			ECanShadow.CANAA.all = ECanaRegs.CANAA.all;
+
+			Index = 0;
+			while(ECanShadow.CANAA.all != 0)
+			{
+				ECanShadow.CANAA.all = (ECanShadow.CANAA.all >> 1);
+				if ((ECanShadow.CANAA.all & 0x01) == 0x01)
+				{
+					//get the abort mailbox,and ready for resend data;
+					ConfigTxnMb('A', Index, Can[0].canframe.canid, Can[0].canframe.dlc);
+					TxMBData('A',Index, &(Can[0].canframe.data[0]));
+					ECanShadow.CANAA.all |= (1 << Index);
+					ECanaRegs.CANAA.all = ECanShadow.CANAA.all;
+				}
+				Index++;
+			}
+		}
+		//over write mailbox by a new one
+		if (ECanShadow.CANGIF0.bit.RMLIF0 == 1)
+		{
+			ECanShadow.CANRML.all = ECanaRegs.CANRML.all;
+
+			Index = 0;
+			while(ECanShadow.CANRML.all != 0)
+			{
+				ECanShadow.CANRML.all = (ECanShadow.CANRML.all >> 1);
+				if ((ECanShadow.CANRML.all & 0x01) == 0x01)
+				{
+					ECanShadow.CANRMP.all = ECanaRegs.CANRMP.all;
+					ECanShadow.CANRMP.all |= (1 << Index);
+					ECanaRegs.CANRMP.all = ECanShadow.CANRMP.all;
+				}
+				Index++;
+			}
+		}
+	}
+}
+
+/***************************************************************************
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
+ ***************************************************************************/
+interrupt void ecan1inta_isr(void)//line1
+{
+	struct ECAN_REGS ECanShadow;
+	Uint32 Index = 0,ReadH,ReadL;
+	struct ECAN_MBOXES *pEcan_Mboxes = &ECanaMboxes;
+    unsigned char dlc = 0;
+
+	ECanShadow.CANGIF1.all = ECanaRegs.CANGIF1.all;
+
+	if (ECanShadow.CANGIF1.bit.GMIF0 == 1)
+	{
+		ECanShadow.CANGIF1.bit.MIV1 = ECanaRegs.CANGIF1.bit.MIV1;
+		Index = ECanShadow.CANGIF1.bit.MIV1;
+
+		Can[1].canframe.dlc = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MSGCTRL.bit.DLC;
+		Can[1].canframe.data[7] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDH.byte.BYTE7;
+		Can[1].canframe.data[6] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDH.byte.BYTE6;
+		Can[1].canframe.data[5] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDH.byte.BYTE5;
+		Can[1].canframe.data[4] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDH.byte.BYTE4;
+		Can[1].canframe.data[3] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDL.byte.BYTE3;
+		Can[1].canframe.data[2] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDL.byte.BYTE2;
+		Can[1].canframe.data[1] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDL.byte.BYTE1;
+		Can[1].canframe.data[0] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDL.byte.BYTE0;
+
+		ECanShadow.CANRMP.all = ECanaRegs.CANRMP.all;
+		ECanShadow.CANRMP.all |= (1 << Index);
+		ECanaRegs.CANRMP.all = ECanShadow.CANRMP.all;
+
+		PieCtrlRegs.PIEACK.bit.ACK9 = 1;
+		IER |= 0x0100; // Enable INT9
+	}
+}
+
+/***************************************************************************
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
+ ***************************************************************************/
+interrupt void ecan0intb_isr(void)
+{
+	struct ECAN_REGS ECanShadow;
+	Uint32 Index = 0;
+
+	ECanShadow.CANGIF0.all = ECanbRegs.CANGIF0.all;
+
+	if (ECanShadow.CANGIF0.bit.GMIF0 == 0)
+	{
+		//abort send data
+		if (ECanShadow.CANGIF0.bit.AAIF0 == 1)
+		{
+			ECanShadow.CANAA.all = ECanbRegs.CANAA.all;
+
+			Index = 0;
+			while(ECanShadow.CANAA.all != 0)
+			{
+				ECanShadow.CANAA.all = (ECanShadow.CANAA.all >> 1);
+				if ((ECanShadow.CANAA.all & 0x01) == 0x01)
+				{
+					//get the abort mailbox,and ready for resend data;
+					ConfigTxnMb('B', Index, Can[2].canframe.canid, Can[2].canframe.dlc);
+					TxMBData('B',Index, &(Can[2].canframe.data[0]));
+					ECanShadow.CANAA.all |= (1 << Index);
+					ECanbRegs.CANAA.all = ECanShadow.CANAA.all;
+				}
+				Index++;
+			}
+		}
+		//over write mailbox by a new one
+		if (ECanShadow.CANGIF0.bit.RMLIF0 == 1)
+		{
+			ECanShadow.CANRML.all = ECanbRegs.CANRML.all;
+
+			Index = 0;
+			while(ECanShadow.CANRML.all != 0)
+			{
+				ECanShadow.CANRML.all = (ECanShadow.CANRML.all >> 1);
+				if ((ECanShadow.CANRML.all & 0x01) == 0x01)
+				{
+					ECanShadow.CANRMP.all = ECanbRegs.CANRMP.all;
+					ECanShadow.CANRMP.all |= (1 << Index);
+					ECanbRegs.CANRMP.all = ECanShadow.CANRMP.all;
+				}
+				Index++;
+			}
+		}
+	}
+}
+
+/***************************************************************************
+ * Name         :
+ * Decription   :
+ * Input        :
+ * Output       :
+ * Return       :
+ * Mend History :
+ ***************************************************************************/
+interrupt void ecan1intb_isr(void)
+{
+	struct ECAN_REGS ECanShadow;
+	Uint32 Index = 0,ReadH,ReadL;
+	struct ECAN_MBOXES *pEcan_Mboxes = &ECanbMboxes;
+    unsigned char dlc = 0;
+
+	ECanShadow.CANGIF1.all = ECanbRegs.CANGIF1.all;
+
+	if (ECanShadow.CANGIF1.bit.GMIF0 == 1)
+	{
+		ECanShadow.CANGIF1.bit.MIV1 = ECanbRegs.CANGIF1.bit.MIV1;
+		Index = ECanShadow.CANGIF1.bit.MIV1;
+
+		Can[3].canframe.dlc = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MSGCTRL.bit.DLC;
+		Can[3].canframe.data[7] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDH.byte.BYTE7;
+		Can[3].canframe.data[6] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDH.byte.BYTE6;
+		Can[3].canframe.data[5] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDH.byte.BYTE5;
+		Can[3].canframe.data[4] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDH.byte.BYTE4;
+		Can[3].canframe.data[3] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDL.byte.BYTE3;
+		Can[3].canframe.data[2] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDL.byte.BYTE2;
+		Can[3].canframe.data[1] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDL.byte.BYTE1;
+		Can[3].canframe.data[0] = *(pEcan_Mboxes->MBOX0 + Index * sizeof(pEcan_Mboxes->MBOX0)).MDL.byte.BYTE0;
+
+		ECanShadow.CANRMP.all = ECanbRegs.CANRMP.all;
+		ECanShadow.CANRMP.all |= (1 << Index);
+		ECanbRegs.CANRMP.all = ECanShadow.CANRMP.all;
+
+		PieCtrlRegs.PIEACK.bit.ACK9 = 1;
+		IER |= 0x0100; // Enable INT9
+	}
+}
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
